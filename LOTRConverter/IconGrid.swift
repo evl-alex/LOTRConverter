@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct IconGrid: View {
-    @State var currency: Currency
+    @Binding var currency: Currency
     
     var body: some View {
         // Currency icons
@@ -40,5 +40,7 @@ struct IconGrid: View {
 }
 
 #Preview {
-    IconGrid(currency: .silverPiece)
+    @Previewable @State var currency: Currency = .silverPiece
+    
+    IconGrid(currency: $currency)
 }

@@ -107,7 +107,6 @@ struct ContentView: View {
                     
                     Button {
                         showExchangeInfo.toggle()
-                        print("showExchangeInfo value: \(showExchangeInfo)")
                     } label: {
                         Image(systemName: "info.circle.fill")
                             .font(.largeTitle)
@@ -121,7 +120,7 @@ struct ContentView: View {
             ExchangeInfo()
         }
         .sheet(isPresented: $showSelectCurrency) {
-            SelectCurrency(topCurrency: leftCurrency, bottomCurrency: rightCurrency)
+            SelectCurrency(topCurrency: $leftCurrency, bottomCurrency: $rightCurrency)
         }
     }
 }
