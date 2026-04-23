@@ -10,7 +10,7 @@ import TipKit
 
 struct ContentView: View {
     @State var showExchangeInfo = false
-    @State var showSelectCurrency = false
+    @State var isShowingSelectCurrency = false
     
     @State var leftAmount = ""
     @State var rightAmount = ""
@@ -45,33 +45,14 @@ struct ContentView: View {
                 
                 // Conversion section
                 HStack{
-                    // Left coversion section
-                    VStack {
-                        // Currency
-                        HStack {
-                            // Currency image
-                            Image(leftCurrency.image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 33)
-                            
-                            // Currency text
-                            Text(leftCurrency.name)
-                                .font(.headline)
-                                .foregroundStyle(.white)
-                        }
-                        .padding(.bottom, -5)
-                        .onTapGesture {
-                            showSelectCurrency.toggle()
-                            currencyTip.invalidate(reason: .actionPerformed)
-                        }
-                        .popoverTip(currencyTip, arrowEdge: .bottom)
-                        
-                        // Text field
-                        TextField("Amount", text: $leftAmount)
-                            .textFieldStyle(.roundedBorder)
-                            .focused($leftTyping)
-                    }
+                    // Left conversion section
+                    CurrencyInput(
+                        currency: leftCurrency,
+                        amount: $leftAmount,
+                        isShowingSelectCurrency: $isShowingSelectCurrency,
+                        isTyping: $leftTyping,
+                        tip: currencyTip
+                    )
                     
                     // Equeal sign
                     Image(systemName: "equal")
@@ -80,32 +61,13 @@ struct ContentView: View {
                         .symbolEffect(.pulse)
                     
                     // Right conversion section
-                    VStack {
-                        // Currency
-                        HStack {
-                            // Currency image
-                            Text(rightCurrency.name)
-                                .font(.headline)
-                                .foregroundStyle(.white)
-                            
-                            // Currency text
-                            Image(rightCurrency.image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 33)
-                        }
-                        .padding(.bottom, -5)
-                        .onTapGesture {
-                            showSelectCurrency.toggle()
-                            currencyTip.invalidate(reason: .actionPerformed)
-                        }
-                        
-                        // Text field
-                        TextField("Amount", text: $rightAmount)
-                            .textFieldStyle(.roundedBorder)
-                            .multilineTextAlignment(.trailing)
-                            .focused($rightTyping)
-                    }
+                    CurrencyInput(
+                        currency: rightCurrency,
+                        amount: $rightAmount,
+                        isShowingSelectCurrency: $isShowingSelectCurrency,
+                        isTyping: $rightTyping,
+                        tip: currencyTip
+                    )
                 }
                 .padding()
                 .background(.black.opacity(0.5))
@@ -131,6 +93,8 @@ struct ContentView: View {
         }
         .task {
             try? Tips.configure()
+            leftCurrency = Currency(rawValue: UserDefaults.standard.double(forKey: "left-currency")) ?? Currency.silverPiece
+            rightCurrency = Currency(rawValue: UserDefaults.standard.double(forKey: "right-currency")) ?? Currency.goldPiece
         }
         .onChange(of: leftAmount) {
             if leftTyping {
@@ -144,14 +108,25 @@ struct ContentView: View {
         }
         .onChange(of: leftCurrency) {
             leftAmount = rightCurrency.convert(rightAmount, to: leftCurrency)
+            UserDefaults.standard.set(leftCurrency.rawValue, forKey: "left-currency")
         }
         .onChange(of: rightCurrency) {
             rightAmount = leftCurrency.convert(leftAmount, to: rightCurrency)
+            UserDefaults.standard.set(rightCurrency.rawValue, forKey: "right-currency")
+        }
+        .onTapGesture {
+            if leftTyping {
+                leftTyping.toggle()
+            }
+            
+            if rightTyping {
+                rightTyping.toggle()
+            }
         }
         .sheet(isPresented: $showExchangeInfo) {
             ExchangeInfo()
         }
-        .sheet(isPresented: $showSelectCurrency) {
+        .sheet(isPresented: $isShowingSelectCurrency) {
             SelectCurrency(topCurrency: $leftCurrency, bottomCurrency: $rightCurrency)
         }
     }

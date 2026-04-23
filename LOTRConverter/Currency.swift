@@ -8,6 +8,7 @@
 import SwiftUI
 
 enum Currency: Double, CaseIterable, Identifiable {
+    case treeLeaf = 12800
     case copperPenny = 6400
     case silverPenny = 64
     case silverPiece = 16
@@ -20,6 +21,7 @@ enum Currency: Double, CaseIterable, Identifiable {
     
     var image: ImageResource {
         switch self {
+        case .treeLeaf: .treeleaf
         case .copperPenny: .copperpenny
         case .silverPenny: .silverpenny
         case .silverPiece: .silverpiece
@@ -30,6 +32,8 @@ enum Currency: Double, CaseIterable, Identifiable {
     
     var name: String {
         switch self {
+        case .treeLeaf:
+            "Tree Leaf"
         case .copperPenny:
             "Copper Penny"
         case .silverPenny:
